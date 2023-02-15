@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ header_title or "我的網站"}}</title>
+    <link rel="stylesheet" href="/static/stylesheets/style.css">
+    {% block sytle_list%}
+
+    {%endblock%}
+</head>
+
+<body>
+    <header>
+        <h1 class="red-title">{{header_title or "default header title"}}</h1>
+        <!-- <h1>header title2</h1> -->
+
+        {% block header %}
+        <!-- 此處是首頁要用的個別block -->
+        {% endblock %}
+
+    </header>
+    <div class="wrap">
+        {% block body %}
+
+        {% endblock %}
+    </div>
+    <footer>
+        <p>contact me: <a href="mailto:a9202507@gmail.com">email</a></p>
+        <p>&copy; 2021</p>
+    </footer>
+</body>
+
+</html>
