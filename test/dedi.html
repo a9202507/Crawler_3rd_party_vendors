@@ -1,0 +1,2629 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<style>
+    /* === process bar === */
+    .approval-progress {
+        display: table;
+        overflow: auto;
+    }
+
+    .approval-progress .approval-progress-step {
+        position: relative;
+        display: table-cell;
+        padding: 15px 0px 15px 0px;
+        min-width: 120px;
+        max-width: 120px;
+    }
+
+    .approval-progress .approval-progress-step:before {
+        left: 50%;
+        top: 14px;
+        background-color: #c2c2c2;
+        content: "";
+        display: block;
+        height: 2px;
+        position: relative;
+    }
+
+    .approval-progress .approval-progress-step:last-child:before {
+        content: none;
+    }
+
+    .approval-progress .approval-progress-step:last-child {
+        margin-top: 2px;
+    }
+
+    .approver-details .checkpoint-name, .checkpoint-deadline{
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .approver-details .checkpoint-comment, .checkpoint-user, .checkpoint-status {
+        line-height: initial;
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        font-size:12px;
+    }
+
+    .approval-progress-step .step-number {
+        color: #656464;
+        background-color: #fff;
+        width: 24px;
+        height: 24px;
+        line-height: 22px;
+        border: 1px solid #c2c2c2;
+        border-radius: 18px;
+        font-size: 14px;
+        font-weight: bold;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .approval-progress-step.pending .step-number {
+        border-color: #f9c518;
+        background-color: #f9c518;
+        color: #fff;
+    }
+
+    .approval-progress-step.highlight .step-number {
+        border-color: #dc3545;
+        background-color: #fff;
+        color: #dc3545;
+    }
+
+    .approval-progress-step.approved .step-number {
+        border-color: #34a85a;
+        background-color: #34a85a;
+        color: #fff;
+    }
+
+    .approval-progress-step.rejected .step-number,
+    .approval-progress-step.queueing .step-number {
+        border-color: #c2c2c2;
+        background-color: #fff;
+        color: #979797;
+    }
+
+    .approval-progress-step.step-editor .insert-step {
+        border-style: dashed;
+    }
+
+    .approval-progress-step.step-editor .insert-step:hover {
+        border-color: #656464;
+    }
+
+    .approval-progress-step.step-editor .insert-step:hover:after {
+        /* content: attr(data-hover-content); */
+        white-space: nowrap;
+        word-break: keep-all;
+        padding: 0px 5px;
+        position: absolute;
+        top: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .approval-progress-step .added-info {
+        position: relative;
+        left: -50%;
+        padding: 0px 3px 0px 3px;
+        border: 1px solid #c2c2c2;
+        border-radius: 5px;
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .added-info .added-remark-icon {
+        position: absolute;
+        line-height: inherit;
+        right: 3px;
+    }
+
+    .added-info-wrapper {
+        position: absolute;
+        top: 0px;
+        left: 50%;
+    }
+
+    .approval-progress-wrapper {
+        overflow-x: auto;
+    }
+</style>
+
+<script id="approval-progress" type="text/template">
+    <div class="list-inline text-center approval-progress"></div>
+</script>
+
+<script id="approval-progress-step-editor" type="text/template">
+  <li class="approval-progress-step step-editor">
+    <div class="step-number insert-step" data-hover-content="Add step">
+      <i class="fas fa-plus" style="line-height: inherit"></i>
+    </div>
+    <div class="approver-details padding-top-10 padding-bottom-10">
+      <div class="checkpoint-name"></div>
+      <div class="checkpoint-deadline"></div>
+      <div class="checkpoint-user"></div>
+      <div class="checkpoint-status"></div>
+      <div class="checkpoint-date"></div>
+      <div class="checkpoint-comment"></div>
+    </div>
+  </li>
+</script>
+
+<script id="example" type="text/template">
+  <div class="list-inline text-center approval-progress">
+    <li class="approval-progress-step approved step-editor">
+      <div class="step-number link insert-step">
+        0
+      </div>
+      <div class="approver-details text-success padding-top-10 padding-bottom-10">
+        <div class="checkpoint-name">Unlock</div>
+        <div class="checkpoint-status"></div>
+        <div class="checkpoint-date"></div>
+        <div class="checkpoint-comment">2021-03-10 13:27:00</div>
+      </div>
+    </li>
+    <li class="approval-progress-step approved step-editor">
+      <div class="step-number link insert-step">
+        1
+      </div>
+      <div class="approver-details padding-top-10 padding-bottom-10">
+        <div class="checkpoint-name">Nick</div>
+        <div class="checkpoint-status">Approve</div>
+        <div class="checkpoint-date">DDD</div>
+        <div class="checkpoint-comment"></div>
+      </div>
+    </li>
+    <li class="approval-progress-step step-editor">
+      <div class="step-number link insert-step">
+        finish
+      </div>
+      <div class="approver-details padding-top-10 padding-bottom-10">
+        <div class="checkpoint-name">Nick</div>
+        <div class="checkpoint-status">Approve</div>
+        <div class="checkpoint-date">DDD</div>
+        <div class="checkpoint-comment"></div>
+      </div>
+    </li>
+  </div>
+</script><meta http-equiv="Content-Type" content="text/html; "/>
+<!-- font Awesome 5.14.0 -->
+<link rel='stylesheet' href='/rwd/node_modules/@fortawesome/fontawesome-free/css/all.min.css'/>
+
+<!-- jquery 3.5.1 -->
+<script src="/rwd/node_modules/jquery/dist/jquery.min.js"></script>
+
+<!-- === bootstrap 4.0.0 === -->
+<link rel="stylesheet" href="/dediprog/assets/bootstrap/css/bootstrap.min.css">
+<script src="/rwd/node_modules/popper.js/dist/umd/popper.min.js" ></script>
+<script src="/dediprog/assets/bootstrap/js/bootstrap.min.js"></script>
+
+<!-- bootstrap-select 1.13.18 -->
+<link rel="stylesheet" href="/rwd/node_modules/bootstrap-select/dist/css/bootstrap-select.min.css">
+<script src="/rwd/node_modules/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
+<script src="/rwd/node_modules/bootstrap-select/dist/js/i18n/defaults-zh_TW.min.js"></script>
+
+<!-- boostarap-icon -->
+<link rel="stylesheet" href="/dediprog/assets/bootstrap-icon/font/bootstrap-icons.min.css">
+
+<!-- bootstrap-fileinput -->
+<link href="/dediprog/assets/bootstrap-fileinput/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
+<script  src="/dediprog/assets/bootstrap-fileinput/fileinput.min.js" ></script> 
+
+<!-- jquery-confirm 3.3.2 -->
+<link rel="stylesheet" href="/dediprog/assets/jquery-confirm/jquery-confirm-master/dist/jquery-confirm.min.css">
+<script src="/dediprog/assets/jquery-confirm/jquery-confirm-master/dist/jquery-confirm.min.js"></script>
+
+<!-- loading mask - document <-> https://gasparesganga.com/labs/jquery-loading-overlay/ -->
+<script src="/dediprog/assets/loading-overlay/loadingoverlay.min.js"></script>
+
+<!-- freeze table -->
+<script type="text/javascript" src="/dediprog/assets/plugins/freeze-table/freeze-table.js"></script>
+<!-- helper muti lv tree -->
+<script type="text/javascript" src="/dediprog/js/inner/lib/build_muti_select.js"></script>
+<!-- message_board_common -->
+<script type="text/javascript" src="/dediprog/js/inner/message_board/message_board.js"></script>
+<!-- process_bar -->
+<script type="text/javascript" src="/dediprog/js/inner/process_bar/process_bar_builder_factory.js"></script>
+<!-- langage -->
+<script type="text/javascript" src="/dediprog/app/lang/js_lang.php"></script>
+<script type="text/javascript" src="/dediprog/js/helper/lang_helper.js"></script>
+<!-- JQuery UI -->
+<link href="/rwd/node_modules/jquery-ui-dist/jquery-ui.min.css" rel='stylesheet'>
+<!-- clipboard.js -->
+<script src="/dediprog/assets/clipboard/clipboard.min.js"></script>
+<!-- notify.js -->
+<script src="/dediprog/assets/notify/notify.min.js"></script>
+
+<!-- autocomplete -->
+<script  src="/rwd/node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
+
+<!-- bootstrap-datepicker -->
+<link rel="stylesheet" href="/rwd/node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css" >
+<script src="/rwd/node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+
+<!-- Ladda -->
+<link rel='stylesheet' href='/dediprog/assets/ladda/ladda-themeless.min.css'/>
+<script src="/dediprog/assets/ladda/spin.min.js"></script>
+<script src='/dediprog/assets/ladda/ladda.min.js'></script>
+
+
+<!-- common css -->
+<link rel="stylesheet" href="/dediprog/app/css/common.css"><!-- ga (不知道有沒有用) -->
+<script type="text/javascript" src="js/analyticstracking.js"></script>
+<script src="/rwd/node_modules/twbs-pagination/jquery.twbsPagination.min.js" ></script>
+<link rel="stylesheet" type="text/css" href="css/table.css" />
+<meta http-equiv="Content-Type" content="text/html; " />
+<title>Dediprog</title>
+<style type="text/css">
+    A {
+        text-decoration: none
+    }
+
+    .p-top {
+        padding-top: 3px;
+        display: inline-block;
+    }
+
+    a.socket_link {
+        /* font-size: 3em;  */
+        text-align: center;
+        -webkit-transition: all .5s ease;
+        -moz-transition: all .5s ease;
+        transition: all .5s ease;
+    }
+
+    a.socket_link:hover {
+        color: red;
+    }
+
+    ul.pagination {
+        margin: 3px;
+    }
+
+    table#searchTable {
+        font-size: 12pt;
+    }
+    .nav-pills>li>a.active,
+    .nav-pills>li>a.active:hover,
+    .nav-pills>li>a.active:focus {
+        background-color: #154b94 !important;
+    }
+    .nav-pills .nav-link {
+        border-radius: 0;
+    }
+</style>
+<script src="js/softcule_calendar.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/calendar.js"></script>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function() {
+        $(".flip").click(function(){
+            $(".panel").slideToggle("slow");
+        });
+        // sotore local storage
+        var programmer = ["11"];
+        $('#bnSearch').click(function () { 
+            $.LoadingOverlay("show");
+            var programmerArray = [];
+            $.each($('input[name="ddlProgrammer[]"]:checked'), function (idx, val) { 
+                programmerArray.push($(this).val());
+            });
+            localStorage.setItem('localStorageProgrammer', programmerArray);
+        });
+
+        var localStorageProgrammer = localStorage.getItem('localStorageProgrammer');
+        if (!programmer && localStorageProgrammer) {
+            $.LoadingOverlay("show");
+            location.href=`/dediprog/ic_search.php?localStorageProgrammer=${localStorageProgrammer}`;
+        }
+
+        // 綁定自動完成
+        $("#s_o_no").autocomplete({
+            source: "/dediprog/ajax/chip_config/device_search_autocomplete.php?c_name",
+        });
+        $("#skt_no").autocomplete({
+            source: "/rwd/autocomplete.php?table=topboardpcb&column=PCBPartNo",
+        });
+
+        $('#searchTable select').selectpicker({
+            title: '',
+        });
+        $('#bnClear').click(function() {
+            $('#searchTable input:text').val('');
+            $('#searchTable select').val('A3').selectpicker('refresh');
+            $('input[name="ddlProgrammer[]"]').prop('checked', false);
+            $('.default_item').prop('checked', true);
+        });
+
+        var limit = 5;
+        $('input[name="ddlProgrammer[]"]').click(function() {
+            if ($('input[name="ddlProgrammer[]"]:checked').length > limit) {
+                this.checked = false;
+                alert('Limit 5 item');
+            } else if ($('input[name="ddlProgrammer[]"]:checked').length <= 0) {
+                alert('Choose at least one item');
+            }
+        });
+
+        $('#eol_item').click(function () { 
+            $('.eol_info').toggleClass('d-none');
+        });
+
+        $('.page-link').click(function () { 
+            var href = $(this).attr('href');
+            var $navs_active = $(this).parents('tbody').find('td:first').data('navs_active');
+
+            if ($navs_active) {
+                location.href = `${href}&navs_active=${$navs_active}`;
+                return false;
+            }
+        });
+
+        // tr color change
+        $('.tr_color_change').mouseover(function () { 
+            var isClass = $(this).attr('class').split(' ');
+            var data_group = '';
+            var className;
+            // 尋找 data_group
+            $.each(isClass, function (idx, val) { 
+                var matches = val.match(/data_group_[\d]/);
+                if (val.match(/R[12]a/)) {
+                    className = val.match(/R[12]a/)[0];
+                }
+                if (matches) {
+                    data_group = val;
+                }
+            });
+            $(`.${data_group}`).toggleClass('Rz2');
+
+            $(this).mouseout(function () { 
+                $(`.${data_group}`).removeClass('Rz2');
+                $(`.${data_group}`).addClass(className);
+            });
+        });
+        
+        $('#clipboard').click(function () { 
+            var $temp = $("<input>");
+            var rootUrl = $(this).data('rooturl');
+            var parameter = `https://${rootUrl}/search/socket?parameter=${$(this).data('parameter')}`;
+
+            $("body").append($temp);
+            $temp.val(parameter).select();
+            document.execCommand("copy");
+            $temp.remove();
+        });
+    });
+
+    onDRAGSTART = "window.event.returnValue=false"
+    onCONTEXTMENU = "window.event.returnValue=false"
+    onSelectStart = "event.returnValue=false"
+
+    function ToPage2(sono, sktno, mf, type, promr) {
+        window.open("PHPExcel/icsearch_xls.php?sono=" + sono + "&sktno=" + sktno + "&mf=" + mf + "&type=" + type + "&promr=" + promr, "_blank");
+    }
+
+    function CheckNull() {
+        msg = "";
+        if ($('input[name="ddlProgrammer[]"]:checked').length != 0 && phpForm.s_o_no.value == "" && phpForm.skt_no.value == "" && phpForm.ddlType.value == "") {
+            msg = "Please select or keyin at least one of the conditions ";
+        } else if ($('input[name="ddlProgrammer[]"]:checked').length == 0) {
+            msg = "Please select programmer";
+        } else {
+            return true;
+        }
+        alert(msg);
+        return false;
+    }
+</script>
+
+</head>
+
+<body style="color: rgb(0, 0, 0);   ">
+    <form name="phpForm" method="get" action="ic_search.php" id="phpForm">
+        <div>
+            <h6>Programmer</h6>
+            <!-- enable product -->
+                            <label class="pr-2">
+                    <input type="checkbox" name="ddlProgrammer[]" value="80" class="default_item"
+                         
+                    >
+                    NuProgPlus-U16                    <span style="font-size: 12px; color: Dodgerblue;">
+                        <a href="http://dediprog.com/product/NuProgPlus-U16" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt link"></i></a>
+                    </span>
+                </label>
+                                            <label class="pr-2">
+                    <input type="checkbox" name="ddlProgrammer[]" value="11" class="default_item"
+                        checked 
+                    >
+                    ProgMaster-U8                    <span style="font-size: 12px; color: Dodgerblue;">
+                        <a href="http://dediprog.com/product/ProgMaster-U8" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt link"></i></a>
+                    </span>
+                </label>
+                                    <br/>
+                                            <label class="pr-2">
+                    <input type="checkbox" name="ddlProgrammer[]" value="81" class="default_item"
+                         
+                    >
+                    NuProg-E2                    <span style="font-size: 12px; color: Dodgerblue;">
+                        <a href="http://dediprog.com/product/NuProg-E2" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt link"></i></a>
+                    </span>
+                </label>
+                                            <label class="pr-2">
+                    <input type="checkbox" name="ddlProgrammer[]" value="21" class="default_item"
+                         
+                    >
+                    SF100                    <span style="font-size: 12px; color: Dodgerblue;">
+                        <a href="http://dediprog.com/product/SF100" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt link"></i></a>
+                    </span>
+                </label>
+                                            <label class="pr-2">
+                    <input type="checkbox" name="ddlProgrammer[]" value="22" class=""
+                         
+                    >
+                    SF600                    <span style="font-size: 12px; color: Dodgerblue;">
+                        <a href="http://dediprog.com/product/SF600" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt link"></i></a>
+                    </span>
+                </label>
+                                            <label class="pr-2">
+                    <input type="checkbox" name="ddlProgrammer[]" value="23" class=""
+                         
+                    >
+                    SF600Plus                    <span style="font-size: 12px; color: Dodgerblue;">
+                        <a href="http://dediprog.com/product/SF600Plus" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt link"></i></a>
+                    </span>
+                </label>
+                                            <label class="pr-2">
+                    <input type="checkbox" name="ddlProgrammer[]" value="24" class=""
+                         
+                    >
+                    SF600Plus-G2                    <span style="font-size: 12px; color: Dodgerblue;">
+                        <a href="http://dediprog.com/product/SF600Plus-G2" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt link"></i></a>
+                    </span>
+                </label>
+                                            <label class="pr-2">
+                    <input type="checkbox" name="ddlProgrammer[]" value="26" class="default_item"
+                         
+                    >
+                    SF700                    <span style="font-size: 12px; color: Dodgerblue;">
+                        <a href="http://dediprog.com/product/SF700" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt link"></i></a>
+                    </span>
+                </label>
+                                            <label class="pr-2">
+                    <input type="checkbox" name="ddlProgrammer[]" value="33" class=""
+                         
+                    >
+                    EM100Pro-G2                    <span style="font-size: 12px; color: Dodgerblue;">
+                        <a href="http://dediprog.com/product/EM100Pro-G2" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt link"></i></a>
+                    </span>
+                </label>
+                                            <label class="pr-2">
+                    <input type="checkbox" name="ddlProgrammer[]" value="18" class=""
+                         
+                    >
+                    StarProg-A                    <span style="font-size: 12px; color: Dodgerblue;">
+                        <a href="http://dediprog.com/product/StarProg-A" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt link"></i></a>
+                    </span>
+                </label>
+                                            <label class="pr-2">
+                    <input type="checkbox" name="ddlProgrammer[]" value="12" class=""
+                         
+                    >
+                    StarProg-U                    <span style="font-size: 12px; color: Dodgerblue;">
+                        <a href="http://dediprog.com/product/StarProg-U" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt link"></i></a>
+                    </span>
+                </label>
+                                            <label class="pr-2">
+                    <input type="checkbox" name="ddlProgrammer[]" value="71" class=""
+                         
+                    >
+                    K110                    <span style="font-size: 12px; color: Dodgerblue;">
+                        <a href="http://dediprog.com/product/K110" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt link"></i></a>
+                    </span>
+                </label>
+                                        <br/>
+            <!-- Eol -->
+            <div>
+                <h6 id="eol_item" style="cursor:pointer;">
+                    <i class="eol_info fas fa-plus-circle pr-2 " ></i>
+                    <i class="eol_info fas fa-minus-circle pr-2 d-none" ></i>
+                    EOL Product
+                </h6>
+                <div class="eol_info d-none">
+                                            <label class="pr-2">
+                            <input type="checkbox" name="ddlProgrammer[]" value="41"  >
+                            EE100                        </label>
+                                            <label class="pr-2">
+                            <input type="checkbox" name="ddlProgrammer[]" value="32"  >
+                            EM100Pro                        </label>
+                                            <label class="pr-2">
+                            <input type="checkbox" name="ddlProgrammer[]" value="61"  >
+                            eMMC-F8                        </label>
+                                            <label class="pr-2">
+                            <input type="checkbox" name="ddlProgrammer[]" value="62"  >
+                            eMMC-F8A                        </label>
+                                            <label class="pr-2">
+                            <input type="checkbox" name="ddlProgrammer[]" value="70"  >
+                            K100                        </label>
+                                            <label class="pr-2">
+                            <input type="checkbox" name="ddlProgrammer[]" value="51"  >
+                            NuProg-E                        </label>
+                                            <label class="pr-2">
+                            <input type="checkbox" name="ddlProgrammer[]" value="55"  >
+                            NuProg-F8                        </label>
+                                            <label class="pr-2">
+                            <input type="checkbox" name="ddlProgrammer[]" value="56"  >
+                            NuProg-F8A                        </label>
+                                            <label class="pr-2">
+                            <input type="checkbox" name="ddlProgrammer[]" value="16"  >
+                            StarProg-ATE                        </label>
+                                            <label class="pr-2">
+                            <input type="checkbox" name="ddlProgrammer[]" value="14"  >
+                            StarProg-F                        </label>
+                                    </div>
+            </div>
+            <hr/>
+            <div class="pb-2">
+                <h6>How to find the right socket adaptor for IC programmer ?</h6>
+                <span>Instructional video:</span>
+                <a href="https://www.youtube.com/watch?v=mbRqSmbWqmY&ab_channel=DediProgTechnology" class="badge badge-primary" target="_blank">
+                    <span style='font-size:16px'><i class="fab fa-youtube pr-2"></i>[Gang Programmer and Others]</span >
+                </a>
+                <a href="https://www.youtube.com/watch?v=xYormUHI2_U" class="badge badge-primary" target="_blank">
+                    <span style='font-size:16px'><i class="fab fa-youtube pr-2"></i>[SF Series]</span >
+                </a>
+            </div>
+            <div class="search-tips">
+                <div class="flip link">
+                    <span class="1">Search Tips
+                        <img border="0" src="images/Help-icon.png" style=" top: 2px !important; left: 2px;">
+                    </span>
+                </div>
+                <table border="0" width="auto">
+                    <tr align="left">
+                        <td>
+                            <div class="panel" style="display:none;">
+                                IC Part Number Example:<br>
+                                <u>STM32F302K</u>8T6TR→ <font color="red">STM32</font>
+                                <font color="blue">F</font>
+                                <font color="green">302</font>
+                                <font color="brown">K</font><br>
+                                <font color="red">DeviceFamily</font>
+                                <font color="blue">MemoryFamily</font>
+                                <font color="green">SubFamily</font>
+                                <font color="brown">PinCount</font>
+                                <br><br>
+                                <u>PIC24EP64GP202</u>TIPT→ <font color="red">PIC24</font>
+                                <font color="blue">EP</font>
+                                <font color="green">64</font>
+                                <font color="brown">GP</font>
+                                <font color="orange">202</font> <br>
+                                <font color="red">DeviceFamily</font>
+                                <font color="blue">MemoryFamily</font>
+                                <font color="green">MemorySize</font>
+                                <font color="brown">ProductGroup</font>
+                                <font color="orange">PinCount</font>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <table border="0" id="searchTable">
+                <tr align="center">
+                    <td align="right"><span style="font-family: Arial;">IC Part No.</span></td>
+                    <td>
+                        <input type="text" id="s_o_no" name="s_o_no" class="wide" value="xdpe">
+                    </td>
+                    <td width="50"></td>
+                                    <td align="right"><span style="font-family: Arial;">
+                        Adaptor / Order No.
+                    </span></td>
+                <td>
+                    <input type="text" id="skt_no" name="skt_no" class="wide" value="">
+                </td>
+                </tr>
+
+                <tr>
+                    <td align="right"><span style="font-family: Arial;">Manufacturer</span></td>
+                    <td>
+                        <select id="ddlManuf" name="ddlManuf" class="selectpicker" data-live-search="true">
+                            <option value="">No Select</option>
+                                                            <option value="2266" >9 CHAPTERS</option>
+                                                            <option value="2065" >AAT</option>
+                                                            <option value="2252" >ABLIC</option>
+                                                            <option value="2053" >ABOV Semiconductor</option>
+                                                            <option value="352" >ACE</option>
+                                                            <option value="2314" >Actions</option>
+                                                            <option value="2081" >ADATA</option>
+                                                            <option value="2044" >Adesto Tech</option>
+                                                            <option value="2097" >Advantech</option>
+                                                            <option value="2338" >Ai-Thinker</option>
+                                                            <option value="2285" >Airoha</option>
+                                                            <option value="537" >AiT</option>
+                                                            <option value="902" >AKM</option>
+                                                            <option value="2148" >Algoltek</option>
+                                                            <option value="2205" >Allegro</option>
+                                                            <option value="2236" >Alliance Memory</option>
+                                                            <option value="2326" >Alpha</option>
+                                                            <option value="36" >ALTERA</option>
+                                                            <option value="2241" >Ambiq</option>
+                                                            <option value="2094" >AMD</option>
+                                                            <option value="2319" >ami</option>
+                                                            <option value="1647" >AMIC</option>
+                                                            <option value="2080" >AMICCOM</option>
+                                                            <option value="2361" >Amphenol</option>
+                                                            <option value="2311" >AMS</option>
+                                                            <option value="825" >Anachip</option>
+                                                            <option value="2093" >Analog</option>
+                                                            <option value="2222" >Analogix</option>
+                                                            <option value="2068" >Anax</option>
+                                                            <option value="2167" >Anlogic</option>
+                                                            <option value="2278" >Anpec</option>
+                                                            <option value="1250" >APLUS</option>
+                                                            <option value="2039" >apMemory</option>
+                                                            <option value="2202" >Artery</option>
+                                                            <option value="2243" >Artmem</option>
+                                                            <option value="1886" >Artschip</option>
+                                                            <option value="559" >Asic Microelect</option>
+                                                            <option value="2329" >ASIX</option>
+                                                            <option value="2237" >Aspeed</option>
+                                                            <option value="787" >ATC</option>
+                                                            <option value="2207" >ATEN</option>
+                                                            <option value="63" >Atmel</option>
+                                                            <option value="2110" >ATO</option>
+                                                            <option value="286" >ATO Solution</option>
+                                                            <option value="2358" >ATP</option>
+                                                            <option value="2071" >AUR</option>
+                                                            <option value="2150" >Aura</option>
+                                                            <option value="2242" >Autochips</option>
+                                                            <option value="2117" >Axeme</option>
+                                                            <option value="2186" >Axia</option>
+                                                            <option value="2046" >Azoteq</option>
+                                                            <option value="2107" >Barun</option>
+                                                            <option value="2192" >BEKEN</option>
+                                                            <option value="1809" >Belling</option>
+                                                            <option value="2096" >Berg</option>
+                                                            <option value="2015" >BergMicro</option>
+                                                            <option value="2300" >Betterlife</option>
+                                                            <option value="2115" >BIWIM</option>
+                                                            <option value="2220" >BIWIN</option>
+                                                            <option value="861" >BooklyMicro</option>
+                                                            <option value="2095" >BOSCH</option>
+                                                            <option value="2170" >Boya</option>
+                                                            <option value="2092" >BOYAMICRO</option>
+                                                            <option value="2211" >brightmoonsl</option>
+                                                            <option value="2060" >Broadcom</option>
+                                                            <option value="2327" >BYD</option>
+                                                            <option value="2309" >BYT</option>
+                                                            <option value="2288" >CAES</option>
+                                                            <option value="2315" >Calterah Semiconductor</option>
+                                                            <option value="1948" >Catalyst</option>
+                                                            <option value="1856" >CBC Microelectronic</option>
+                                                            <option value="1983" >CERAMATE</option>
+                                                            <option value="2172" >cFeon/EON</option>
+                                                            <option value="2007" >cFeon_EON</option>
+                                                            <option value="2111" >CFX</option>
+                                                            <option value="2251" >Chengdu Sino</option>
+                                                            <option value="2337" >ChinaCore</option>
+                                                            <option value="2012" >Chingis</option>
+                                                            <option value="2333" >Chipmind</option>
+                                                            <option value="2290" >Chipon</option>
+                                                            <option value="2063" >Chipone</option>
+                                                            <option value="2193" >Chipsbank</option>
+                                                            <option value="2234" >Chipsea</option>
+                                                            <option value="2284" >Chipsemi</option>
+                                                            <option value="2076" >CHIPSIP</option>
+                                                            <option value="449" >Chipswinner</option>
+                                                            <option value="2114" >Chrontel</option>
+                                                            <option value="2140" >chuangfeixin</option>
+                                                            <option value="106" >CKD</option>
+                                                            <option value="2124" >CKS</option>
+                                                            <option value="2216" >Cmsemicon</option>
+                                                            <option value="2339" >ConvenientPower</option>
+                                                            <option value="2261" >ConveninetPower</option>
+                                                            <option value="528" >CORERIVER</option>
+                                                            <option value="2198" >CoreStorage</option>
+                                                            <option value="882" >Cypress</option>
+                                                            <option value="2120" >DAZZO</option>
+                                                            <option value="2219" >Dialog</option>
+                                                            <option value="2037" >DIODES</option>
+                                                            <option value="2087" >Dosilicon</option>
+                                                            <option value="2088" >DOUQI</option>
+                                                            <option value="2317" >DSP Group</option>
+                                                            <option value="1901" >E-CMOS</option>
+                                                            <option value="2151" >EASTSOFT</option>
+                                                            <option value="2103" >ECHELON</option>
+                                                            <option value="2153" >EEVER</option>
+                                                            <option value="2346" >EFINIX</option>
+                                                            <option value="2324" >ELAN</option>
+                                                            <option value="2262" >ElevATE</option>
+                                                            <option value="2142" >Elmos Semiconductor</option>
+                                                            <option value="2075" >ENE</option>
+                                                            <option value="2064" >EON</option>
+                                                            <option value="2232" >EPSON</option>
+                                                            <option value="853" >ESMT</option>
+                                                            <option value="2214" >ESPRESSIF</option>
+                                                            <option value="1076" >ESTEK</option>
+                                                            <option value="2355" >ESWIN</option>
+                                                            <option value="2061" >Etron</option>
+                                                            <option value="2054" >Everspin Tech</option>
+                                                            <option value="2099" >EXAR</option>
+                                                            <option value="2043" >Excel</option>
+                                                            <option value="1030" >Exel</option>
+                                                            <option value="2113" >EXPLORE</option>
+                                                            <option value="26" >Fairchild</option>
+                                                            <option value="2341" >FANSTEL</option>
+                                                            <option value="1235" >FIDELIX</option>
+                                                            <option value="2304" >Fintek</option>
+                                                            <option value="978" >First-Rank Tech</option>
+                                                            <option value="2137" >Fitipower</option>
+                                                            <option value="2297" >Flexxon</option>
+                                                            <option value="2305" >FMD</option>
+                                                            <option value="2020" >FocalTech</option>
+                                                            <option value="2116" >Foresee</option>
+                                                            <option value="2159" >FortiorTech</option>
+                                                            <option value="1095" >Forward</option>
+                                                            <option value="2139" >Founder</option>
+                                                            <option value="235" >Freescale</option>
+                                                            <option value="166" >Fremont</option>
+                                                            <option value="2343" >FREQCHIP</option>
+                                                            <option value="2226" >Frescologic</option>
+                                                            <option value="2296" >FTDI</option>
+                                                            <option value="2016" >Fudan Microelectronics</option>
+                                                            <option value="183" >Fujitsu</option>
+                                                            <option value="148" >GateLevel</option>
+                                                            <option value="2316" >Geehy</option>
+                                                            <option value="2014" >Generalplus</option>
+                                                            <option value="1999" >Generic</option>
+                                                            <option value="2074" >Genitop</option>
+                                                            <option value="849" >Giantec Semiconductor</option>
+                                                            <option value="755" >GigaDevice</option>
+                                                            <option value="2240" >Glacier</option>
+                                                            <option value="2178" >Global Mixed-mode</option>
+                                                            <option value="2051" >GMT</option>
+                                                            <option value="2286" >Goke</option>
+                                                            <option value="2184" >GOODIX</option>
+                                                            <option value="2250" >GOWIN</option>
+                                                            <option value="2085" >Greenliant</option>
+                                                            <option value="2156" >GreenPeak</option>
+                                                            <option value="2179" >GS</option>
+                                                            <option value="2158" >Gstar</option>
+                                                            <option value="2325" >GSTO</option>
+                                                            <option value="425" >GTM</option>
+                                                            <option value="2225" >GUC</option>
+                                                            <option value="2276" >Halo Microelectronics</option>
+                                                            <option value="2228" >Hangshun</option>
+                                                            <option value="2218" >HANWEI</option>
+                                                            <option value="2147" >HDSC</option>
+                                                            <option value="2122" >Hefei</option>
+                                                            <option value="2067" >HeYangTek</option>
+                                                            <option value="2102" >hhzealcore</option>
+                                                            <option value="2335" >HIKSEMI</option>
+                                                            <option value="2256" >Hilscher</option>
+                                                            <option value="2038" >Himax</option>
+                                                            <option value="2136" >Hisilicon</option>
+                                                            <option value="2100" >HiTrendtech</option>
+                                                            <option value="101" >HOLTEK</option>
+                                                            <option value="2204" >Holychip</option>
+                                                            <option value="66" >HOPEFIND</option>
+                                                            <option value="2356" >HOSIDEN</option>
+                                                            <option value="2255" >HOSINGLOBAL</option>
+                                                            <option value="2345" >hsxp-hk</option>
+                                                            <option value="2293" >HT Micron</option>
+                                                            <option value="1185" >Hua Hong NEC</option>
+                                                            <option value="1989" >Hua Jie Tech</option>
+                                                            <option value="2127" >HUAHONG</option>
+                                                            <option value="2144" >HUAWEI</option>
+                                                            <option value="720" >Hynix</option>
+                                                            <option value="2334" >i-CORE</option>
+                                                            <option value="1875" >IC Microsystems</option>
+                                                            <option value="2131" >ICMAX</option>
+                                                            <option value="2258" >Icthink</option>
+                                                            <option value="2130" >IDT</option>
+                                                            <option value="239" >IK Semiconductor</option>
+                                                            <option value="2047" >iML</option>
+                                                            <option value="2112" >IMS</option>
+                                                            <option value="2328" >indiemicro</option>
+                                                            <option value="767" >Infineon</option>
+                                                            <option value="2273" >Innovision Semiconductor</option>
+                                                            <option value="1123" >Integral</option>
+                                                            <option value="1562" >Intel</option>
+                                                            <option value="2200" >Intelligent Memory</option>
+                                                            <option value="2040" >International Rectifier</option>
+                                                            <option value="2119" >Intersil</option>
+                                                            <option value="218" >ISSI</option>
+                                                            <option value="2042" >ITE</option>
+                                                            <option value="2354" >JADARD</option>
+                                                            <option value="2282" >JOULWATT</option>
+                                                            <option value="2227" >JPX</option>
+                                                            <option value="2098" >JSC</option>
+                                                            <option value="2195" >JUYANG</option>
+                                                            <option value="1556" >K-Line</option>
+                                                            <option value="1991" >KeyASIC</option>
+                                                            <option value="1346" >KH</option>
+                                                            <option value="2350" >Kimtigo</option>
+                                                            <option value="1998" >Kingston</option>
+                                                            <option value="2174" >KIOXIA</option>
+                                                            <option value="642" >KODENSHI</option>
+                                                            <option value="2364" >KONSEMI</option>
+                                                            <option value="2347" >KOWIN</option>
+                                                            <option value="2289" >KUNGFU</option>
+                                                            <option value="2249" >Laird</option>
+                                                            <option value="2101" >LAPIS</option>
+                                                            <option value="921" >LATTICE</option>
+                                                            <option value="2118" >Leahkinn</option>
+                                                            <option value="2362" >LFC</option>
+                                                            <option value="2269" >Lianxin</option>
+                                                            <option value="2143" >light-clock</option>
+                                                            <option value="680" >LinkSmart</option>
+                                                            <option value="2083" >Longsys</option>
+                                                            <option value="2190" >Lontium</option>
+                                                            <option value="2239" >lowpowersemi</option>
+                                                            <option value="2105" >LRC</option>
+                                                            <option value="2272" >LX Semicon</option>
+                                                            <option value="1471" >Lyontek</option>
+                                                            <option value="1756" >Macronix_MXIC</option>
+                                                            <option value="2268" >MARS</option>
+                                                            <option value="2342" >MASSES-CHIP</option>
+                                                            <option value="2072" >Maxim</option>
+                                                            <option value="2141" >MaxLinear</option>
+                                                            <option value="2203" >MediaTek</option>
+                                                            <option value="2271" >Megawin</option>
+                                                            <option value="2176" >Melexis</option>
+                                                            <option value="2079" >MemoRight</option>
+                                                            <option value="2336" >MengXW</option>
+                                                            <option value="2331" >Mesilicon</option>
+                                                            <option value="2155" >Micro-star</option>
+                                                            <option value="1602" >Microchip</option>
+                                                            <option value="202" >Micron</option>
+                                                            <option value="2171" >Micron(Numonyx)</option>
+                                                            <option value="2209" >Microsemi</option>
+                                                            <option value="2215" >Midastek</option>
+                                                            <option value="2129" >Mindmotion</option>
+                                                            <option value="2106" >MIRA</option>
+                                                            <option value="2126" >MPS</option>
+                                                            <option value="2206" >MRSEMI</option>
+                                                            <option value="1990" >MStar</option>
+                                                            <option value="2149" >MtekVision Asset Inc</option>
+                                                            <option value="2312" >muRata</option>
+                                                            <option value="2360" >MVSILICON</option>
+                                                            <option value="2299" >MXCHIP</option>
+                                                            <option value="970" >My-MS</option>
+                                                            <option value="2351" >NanoWell</option>
+                                                            <option value="2048" >NANSI</option>
+                                                            <option value="1462" >Nantronics</option>
+                                                            <option value="2245" >NANYA</option>
+                                                            <option value="2230" >Nation</option>
+                                                            <option value="2066" >NEC</option>
+                                                            <option value="2248" >NeuMem</option>
+                                                            <option value="2160" >NewVision</option>
+                                                            <option value="2154" >Nor-mem</option>
+                                                            <option value="2001" >NORDIC</option>
+                                                            <option value="428" >NOVATEK</option>
+                                                            <option value="17" >NS</option>
+                                                            <option value="1505" >Numonyx</option>
+                                                            <option value="1797" >Nuvoton</option>
+                                                            <option value="2363" >NVT</option>
+                                                            <option value="20" >NXP</option>
+                                                            <option value="2163" >O2Micro</option>
+                                                            <option value="857" >ON Semiconductor</option>
+                                                            <option value="2175" >OnBright</option>
+                                                            <option value="2279" >Padauk</option>
+                                                            <option value="2330" >Pai</option>
+                                                            <option value="2058" >Panasonic</option>
+                                                            <option value="2259" >PangoMicro</option>
+                                                            <option value="2091" >Parade</option>
+                                                            <option value="2073" >Paragon</option>
+                                                            <option value="2050" >PCT</option>
+                                                            <option value="748" >Philips</option>
+                                                            <option value="2221" >PHISON</option>
+                                                            <option value="2157" >PixArt</option>
+                                                            <option value="2166" >PixArt Imaging</option>
+                                                            <option value="1644" >PMC</option>
+                                                            <option value="293" >Portek</option>
+                                                            <option value="2138" >Prolific</option>
+                                                            <option value="2146" >pSemi</option>
+                                                            <option value="2089" >PUYA</option>
+                                                            <option value="2231" >Qorvo</option>
+                                                            <option value="2191" >Qualcomm</option>
+                                                            <option value="2368" >QUECTEL</option>
+                                                            <option value="2353" >Queenston</option>
+                                                            <option value="1225" >Ramtron</option>
+                                                            <option value="1963" >Rato</option>
+                                                            <option value="2181" >Raydium</option>
+                                                            <option value="2213" >RAYTAC</option>
+                                                            <option value="2082" >RDC</option>
+                                                            <option value="2090" >Realtek</option>
+                                                            <option value="2104" >Renergy</option>
+                                                            <option value="1975" >Renesas</option>
+                                                            <option value="2045" >Richtek</option>
+                                                            <option value="2277" >Rochester Electronics</option>
+                                                            <option value="1256" >ROHM</option>
+                                                            <option value="2313" >RUNJET</option>
+                                                            <option value="2078" >Saifun</option>
+                                                            <option value="469" >Samsung</option>
+                                                            <option value="1997" >SanDisk</option>
+                                                            <option value="2121" >SanDisk_WDC</option>
+                                                            <option value="2165" >SandPro</option>
+                                                            <option value="826" >Sanyo</option>
+                                                            <option value="2348" >SCY</option>
+                                                            <option value="1372" >SEIKO</option>
+                                                            <option value="2318" >SEMIDRIVE</option>
+                                                            <option value="2188" >SemTech</option>
+                                                            <option value="2295" >SGMICRO</option>
+                                                            <option value="1451" >SIEMENS</option>
+                                                            <option value="2247" >Sierra Wireless</option>
+                                                            <option value="2059" >Sigma Designs</option>
+                                                            <option value="2133" >Silabs</option>
+                                                            <option value="2168" >Silan</option>
+                                                            <option value="2134" >Silergy</option>
+                                                            <option value="2217" >Silicon Kaiser</option>
+                                                            <option value="2173" >SiliconBlue</option>
+                                                            <option value="2254" >SiliconGO</option>
+                                                            <option value="169" >SiliconLabs</option>
+                                                            <option value="2352" >SiliconMitus</option>
+                                                            <option value="516" >SiliconMotion</option>
+                                                            <option value="2185" >SiliconWorks</option>
+                                                            <option value="2265" >SimpleTech</option>
+                                                            <option value="2291" >Sinhmicro</option>
+                                                            <option value="2041" >Sino Wealth</option>
+                                                            <option value="2306" >Sinomcu</option>
+                                                            <option value="2244" >sinomicon</option>
+                                                            <option value="2302" >Sinone</option>
+                                                            <option value="974" >SiS</option>
+                                                            <option value="2086" >Sitime</option>
+                                                            <option value="2303" >Sitronix</option>
+                                                            <option value="2180" >Siw</option>
+                                                            <option value="2197" >SKhynix</option>
+                                                            <option value="2164" >SkyHigh</option>
+                                                            <option value="2070" >Skymedi</option>
+                                                            <option value="2208" >SKYRELAY</option>
+                                                            <option value="2301" >Skyworks</option>
+                                                            <option value="2275" >SMART Modular</option>
+                                                            <option value="2161" >SMARTCHIP</option>
+                                                            <option value="2169" >SMI</option>
+                                                            <option value="2264" >SOC</option>
+                                                            <option value="2367" >socionext</option>
+                                                            <option value="2294" >SONIX</option>
+                                                            <option value="2257" >SONY</option>
+                                                            <option value="2260" >SOUTHCHIP</option>
+                                                            <option value="1263" >Spansion</option>
+                                                            <option value="2182" >ssmec</option>
+                                                            <option value="1246" >SST</option>
+                                                            <option value="938" >ST</option>
+                                                            <option value="2201" >STC</option>
+                                                            <option value="1853" >Summit</option>
+                                                            <option value="526" >Sunmoon</option>
+                                                            <option value="2229" >Swissbit</option>
+                                                            <option value="2253" >SYNAPSE</option>
+                                                            <option value="2013" >Synaptics</option>
+                                                            <option value="2177" >SyncMOS</option>
+                                                            <option value="2267" >SYNWIT</option>
+                                                            <option value="2274" >TAIYO YUDEN</option>
+                                                            <option value="2223" >TDK-Micronas</option>
+                                                            <option value="2298" >TE Connectivity</option>
+                                                            <option value="2287" >Techpoint</option>
+                                                            <option value="2128" >Telink</option>
+                                                            <option value="2310" >tenx technology</option>
+                                                            <option value="2344" >Terachip</option>
+                                                            <option value="1957" >Terra Semiconductor</option>
+                                                            <option value="704" >Texas Instruments</option>
+                                                            <option value="1187" >TMC</option>
+                                                            <option value="2183" >Torey</option>
+                                                            <option value="1176" >TOSHIBA</option>
+                                                            <option value="2224" >Transcend</option>
+                                                            <option value="982" >Turbo IC</option>
+                                                            <option value="2235" >Ublox</option>
+                                                            <option value="2359" >UCUNDATA</option>
+                                                            <option value="2125" >UDinfo</option>
+                                                            <option value="2199" >UDStore</option>
+                                                            <option value="2349" >UKAI</option>
+                                                            <option value="2233" >Unigroup Tsinghua</option>
+                                                            <option value="2132" >UniIC</option>
+                                                            <option value="2323" >UNIM</option>
+                                                            <option value="2145" >UnionChip</option>
+                                                            <option value="2194" >USI</option>
+                                                            <option value="2152" >UVEI</option>
+                                                            <option value="2308" >UWE</option>
+                                                            <option value="2135" >Vango</option>
+                                                            <option value="2263" >Vertexcom</option>
+                                                            <option value="2280" >VISHAY</option>
+                                                            <option value="2238" >WAICHI</option>
+                                                            <option value="2357" >WAYTRONIC</option>
+                                                            <option value="2212" >WDC</option>
+                                                            <option value="2196" >Welling</option>
+                                                            <option value="2062" >Weltrend</option>
+                                                            <option value="2210" >Westberry</option>
+                                                            <option value="1968" >Winbond</option>
+                                                            <option value="1463" >Wing Shing</option>
+                                                            <option value="2077" >Wing Tech</option>
+                                                            <option value="2321" >WINGSTON</option>
+                                                            <option value="2320" >WingStone</option>
+                                                            <option value="2332" >WISESUN</option>
+                                                            <option value="2340" >witmem</option>
+                                                            <option value="2322" >WodPosit</option>
+                                                            <option value="2246" >XD</option>
+                                                            <option value="2366" >XIAOMI</option>
+                                                            <option value="1152" >Xicor</option>
+                                                            <option value="2189" >Xilinx</option>
+                                                            <option value="2281" >XIOXIA</option>
+                                                            <option value="2292" >XITC</option>
+                                                            <option value="2108" >XMC</option>
+                                                            <option value="2283" >XMOS</option>
+                                                            <option value="2109" >XTX</option>
+                                                            <option value="2162" >YEESTOR</option>
+                                                            <option value="1621" >YMC</option>
+                                                            <option value="2187" >YMTC</option>
+                                                            <option value="2270" >YXSC</option>
+                                                            <option value="2084" >Zbit Semiconductor</option>
+                                                            <option value="708" >Zentel</option>
+                                                            <option value="2307" >ZERRO</option>
+                                                            <option value="2069" >Zetta</option>
+                                                            <option value="907" >Zhengxin</option>
+                                                            <option value="2365" >Zhixin</option>
+                                                            <option value="2123" >Zilog</option>
+                                                    </select>
+                    </td>
+                    <td></td>
+                    
+                <td align="right"><span style="font-family: Arial;">
+                        Chip Type
+                    </span></td>
+                <td>
+                    <select id="ddlType" class="selectpicker" data-live-search="true" name="ddlType">
+                        <option value="A3"  >ALL</option>
+                                                    <option value="120" >CPLD</option>
+                                                    <option value="114" >EEPROM</option>
+                                                    <option value="99" >eMMC</option>
+                                                    <option value="116" >MCU</option>
+                                                    <option value="118" >Others</option>
+                                                    <option value="109" >PARALLEL_NAND</option>
+                                                    <option value="111" >PARALLEL_NOR</option>
+                                                    <option value="121" >SD_NAND</option>
+                                                    <option value="115" >SPI_NAND</option>
+                                                    <option value="110" >SPI_NOR</option>
+                                                    <option value="119" >UFS</option>
+                                            </select>
+                </td>
+
+                </tr>
+                <tr>
+                    <td colspan="3"></td>
+                                    <td></td>
+                <td align="right">
+                    <input type="submit" id="bnSearch" name="bnSave" value="Search" class="wide" onclick="return CheckNull();">
+                    <input type="button" id="bnClear" name="bnClear" value="Default" class="wide">
+                                    </td>
+                </tr>
+            </table>
+
+            <hr/>
+
+            <ul class="nav nav-pills mb-1">
+                                                            <li class="nav-item borderlist">
+                            <a class="nav-link p-1 active" data-navs_actice="11" data-toggle="pill" href="#pills-11" aria-controls="pills-11" aria-selected="true"">
+                                                            ProgMaster-U8(38)                            </a>
+                        </li>
+                                                </ul>
+            <div class="tab-content" id="pills-tabContent">
+                                                    <div class="tab-pane fade show active" id="pills-11" role="tabpanel" aria-labelledby="pills-11-tab">
+                        <table id="data_table_11" style="width: 100%; height: 32px; " class="table-bordered" align="left" class="data" cellspacing="1">
+                            <!-- Pagination -->
+                                                            <tr class="R2a">
+                                    <td colspan="7" align="center" data-navs_active="11">
+                                        <span style="font-family: Arial;">
+                                            <font size="-1">
+                                                <nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center pagination-sm">
+        <li class="page-item  disabled">
+            <span  class="page-link">First</span>
+          </li>
+        <li class="page-item  disabled">
+            <span  class="page-link">Prev</span>
+          </li>
+        <li class="page-item active">
+      <a  class="page-link" href="//eip.dediprog.com/dediprog/ic_search.php?s_o_no=xdpe&ddlProgrammer%5B0%5D=11&page_11=1&per_page_50=50">1</a>
+    </li>
+        <li class="page-item  disabled">
+            <span  class="page-link">Next</span>
+          </li>
+        <li class="page-item  disabled">
+            <span  class="page-link">Last</span>
+          </li>
+      </ul>
+</nav>                                            </font>
+                                        </span>
+                                    </td>
+                                </tr>
+                                                        <tr align="center" class="fixed" style="background-color:#154b94;">
+                                <!-- <td>Count</td> -->
+                                <td align="center"><span style="font-family: Arial; color:white;">
+                                        <font size="-1">Supported IC Part No.
+                                    </span></td>
+                                                                    <td align="center">
+                                        <span style="font-family: Arial; color:white;">
+                                            <font size="-1">Package
+                                        </span>
+                                    </td>
+                                                                                                    <td align="center">
+                                        <span style="font-family: Arial; color:white;">
+                                            <font size="-1">Manufacturer
+                                        </span>
+                                    </td>
+                                                                <td align="center"><span style="font-family: Arial; color:white;">
+                                        <font size="-1">Chip Type
+                                    </span></td>
+                                                                    <td align="center">
+                                        <span style="font-family: Arial; color:white;">
+                                            <font size="-1">Order No.
+                                        </span>
+                                    </td>
+                                                                                                    <td width="50%" align="center"><span style="font-family: Arial; color:white;">
+                                            <font size="-1">Adaptor                                        </span></td>
+                                                            </tr>
+                                                                                        <tr class="R1a tr_color_change data_group_0">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE10280B</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN56</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2772" class="socket_link p-top" target="_blank">
+                                2772                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2772" class="socket_link p-top" target="_blank">
+                                MCU-QFN056070070-016D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_1">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE10280</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN56</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2772" class="socket_link p-top" target="_blank">
+                                2772                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2772" class="socket_link p-top" target="_blank">
+                                MCU-QFN056070070-016D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_2">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE12254C</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                1972                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-051Y                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_3">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE12283C</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                1972                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-051Y                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_4">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE12284B/C_XCF</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                1972                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-051Y                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_5">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE12284C</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                1972                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-051Y                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_6">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE132G5C</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN56</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2118" class="socket_link p-top" target="_blank">
+                                2118                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2118" class="socket_link p-top" target="_blank">
+                                MCU-QFN056070070-013D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_7">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE132G5D</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN56</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2118" class="socket_link p-top" target="_blank">
+                                2118                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2118" class="socket_link p-top" target="_blank">
+                                MCU-QFN056070070-013D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_8">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE132G5H</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN56</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2118" class="socket_link p-top" target="_blank">
+                                2118                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2118" class="socket_link p-top" target="_blank">
+                                MCU-QFN056070070-013D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_9">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE14243A</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                1972                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-051Y                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_10">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE14283A</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                1972                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-051Y                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_11">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE14283A_XCF</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                1972                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-051Y                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_12">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE14284A</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                1972                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/1972" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-051Y                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_13">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE14286A</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN56</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2454" class="socket_link p-top" target="_blank">
+                                2454                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2454" class="socket_link p-top" target="_blank">
+                                MCU-QFN056070070-022D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_14">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE14286A_XCF</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN56</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2454" class="socket_link p-top" target="_blank">
+                                2454                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2454" class="socket_link p-top" target="_blank">
+                                MCU-QFN056070070-022D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_15">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE15254C</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                2329                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-059D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_16">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE15254D</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                2329                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-059D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_17">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE15254D_Patch</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                2329                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-059D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_18">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE15284C</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                2329                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-059D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_19">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE15284D</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                2329                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-059D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_20">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE15284D_Patch</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                2329                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-059D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_21">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE152C4C</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN48</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2330" class="socket_link p-top" target="_blank">
+                                2330                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2330" class="socket_link p-top" target="_blank">
+                                MCU-QFN048060060-050D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_22">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE152C4D</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN48</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2330" class="socket_link p-top" target="_blank">
+                                2330                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2330" class="socket_link p-top" target="_blank">
+                                MCU-QFN048060060-050D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_23">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE19283A</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                2329                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-059D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_24">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE19283B</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                2329                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-059D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_25">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE19283B_Patch</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                2329                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-059D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_26">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE19284A</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                2329                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-059D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_27">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE19284B</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN40</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                2329                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2329" class="socket_link p-top" target="_blank">
+                                MCU-QFN040050050-059D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_28">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE192A3B</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN48</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2727" class="socket_link p-top" target="_blank">
+                                2727                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2727" class="socket_link p-top" target="_blank">
+                                MCU-QFN048060060-062D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_29">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE192C3A</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN48</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2330" class="socket_link p-top" target="_blank">
+                                2330                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2330" class="socket_link p-top" target="_blank">
+                                MCU-QFN048060060-050D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_30">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE192C3B</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN48</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2330" class="socket_link p-top" target="_blank">
+                                2330                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2330" class="socket_link p-top" target="_blank">
+                                MCU-QFN048060060-050D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_31">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE192C3B_Patch</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN48</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2330" class="socket_link p-top" target="_blank">
+                                2330                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2330" class="socket_link p-top" target="_blank">
+                                MCU-QFN048060060-050D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_32">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE192C4A</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN48</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2330" class="socket_link p-top" target="_blank">
+                                2330                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2330" class="socket_link p-top" target="_blank">
+                                MCU-QFN048060060-050D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_33">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE192C4B</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN48</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2330" class="socket_link p-top" target="_blank">
+                                2330                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2330" class="socket_link p-top" target="_blank">
+                                MCU-QFN048060060-050D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_34">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE1A2G3B</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN56</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                &nbsp;&nbsp;&nbsp;Please contact Sales                            <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_35">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE1A2G4B</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN56</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                &nbsp;&nbsp;&nbsp;Please contact Sales                            <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R1a tr_color_change data_group_36">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE1A2G5B</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN56</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2667" class="socket_link p-top" target="_blank">
+                                2667                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2667" class="socket_link p-top" target="_blank">
+                                MCU-QFN056070070-026D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                            <tr class="R2a tr_color_change data_group_37">
+                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;XDPE1A2G7B</font>
+                                        </span></td>
+                                                                            <td rowspan="1">
+                                            <span style="font-family: Arial;">
+                                                <font size="-1">&nbsp;&nbsp;QFN56</font>
+                                            </span>
+                                        </td>
+                                                                                                        <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;Infineon                                        </span></td>
+                                                                    <td rowspan="1"><span style="font-family: Arial;">
+                                            <font size="-1">&nbsp;&nbsp;MCU                                        </span></td>
+                                                                    <td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2667" class="socket_link p-top" target="_blank">
+                                2667                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td><td>
+    <span style="font-family: Arial;">
+        <font size="-1">
+            <!-- progMaster -->
+                                                <!-- 優化 code - 保持原邏輯 -->
+                                            <!-- socket_1 -->
+                                                    &nbsp;&nbsp;
+                            <a href="http://www.dediprog.com/product/2667" class="socket_link p-top" target="_blank">
+                                MCU-QFN056070070-026D                                                                                                                                
+                            </a>
+                                                                        <!-- NuProg -->
+                    </font>
+    </span>
+</td>                                                                                                                                                        
+                            <span style="font-family: Arial;">
+                                Pages : 1 / 1                            </span>
+                            <br>
+
+                            <!-- Pagination -->
+                                                            <tr class="R2a">
+                                    <td colspan="7" align="center">
+                                        <span style="font-family: Arial;">
+                                            <font size="-1">
+                                                <nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center pagination-sm">
+        <li class="page-item  disabled">
+            <span  class="page-link">First</span>
+          </li>
+        <li class="page-item  disabled">
+            <span  class="page-link">Prev</span>
+          </li>
+        <li class="page-item active">
+      <a  class="page-link" href="//eip.dediprog.com/dediprog/ic_search.php?s_o_no=xdpe&ddlProgrammer%5B0%5D=11&page_11=1&per_page_50=50">1</a>
+    </li>
+        <li class="page-item  disabled">
+            <span  class="page-link">Next</span>
+          </li>
+        <li class="page-item  disabled">
+            <span  class="page-link">Last</span>
+          </li>
+      </ul>
+</nav>                                            </font>
+                                        </span>
+                                    </td>
+                                </tr>
+                                                    </table>
+                    </div>
+                                            </div>
+    </form>
+</body>
+
+</html>
+>>> 
