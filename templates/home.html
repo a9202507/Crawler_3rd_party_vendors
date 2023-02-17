@@ -7,21 +7,26 @@
 
 {% block header %}
 <h3> Infineon powerstage efficiency calculation Cloud platform v2</h3>
-<a href="dediprog">check Dediprog status </A>
-<a href="/about">about the website</a>
-<a href="/article">文章列表</a>
-{% endblock %}
 
-{% block content %}
 
-<h1>{{web_info.title}}</h1>
-<h2>{{web_info.subtitle}}</h2>
-<h2>作者:{{author_name}}</h2>
-{% if show_link %}
-<a href="about">about the website</a>
-{% else %}
-<p>你看不到按鈕</p>
-{% endif %}
+<form method='get' action="/dediprog">
+    <input type='text' name='part_number'>
+    <button type='submit'>Submit</button>
+    <br>
+    <a href="/about">about the website</a>
+    <a href="/article">文章列表</a>
+    {% endblock %}
 
-<!-- 使用jinja 語法 呼叫layout.html的結尾 -->
-{% endblock content %}
+    {% block content %}
+
+    <h1>{{web_info.title}}</h1>
+    <h2>{{web_info.subtitle}}</h2>
+    <h2>作者:{{author_name}}</h2>
+    {% if show_link %}
+    <a href="about">about the website</a>
+    {% else %}
+    <p>你看不到按鈕</p>
+    {% endif %}
+
+    <!-- 使用jinja 語法 呼叫layout.html的結尾 -->
+    {% endblock content %}

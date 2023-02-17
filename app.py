@@ -63,7 +63,7 @@ def hello():
 @app.route('/about')
 def method_name():
     return render_template("about.html",
-                           #header_title="about page",
+                           # header_title="about page",
                            )
 
 
@@ -75,13 +75,16 @@ def article_list_page():
                            )
 
 
-@app.route('/dediprog')
+@app.route('/dediprog', methods=['get'])
 def check_dediprog_status():
-    html=dediprog.get_dediprog_html()
-    return render_template("layout.html",content=html)
+    part_number = request.values.get('part_number')
+    html = dediprog.get_dediprog_html(part_number)
+    return render_template("layout.html", content=html)
 
 # 動態路由
-@app.route('/article/<article_id>')  # <> 為flask的變數寫法
+
+
+@ app.route('/article/<article_id>')  # <> 為flask的變數寫法
 def article_page(article_id):
     article = None
     for a in article_list:
@@ -114,15 +117,17 @@ tasks = [
         'note': 'restAPI for todo',
         'done': False
     }
+
+
 ]
 
 
-@app.route('/api/tasks', methods=['GET'])
+@ app.route('/api/tasks', methods=['GET'])
 def get_tasks():
     return jsonify({'tasks': tasks})
 
 
-@app.route('/api/task/<int:task_id>', methods=['GET'])
+@ app.route('/api/task/<int:task_id>', methods=['GET'])
 def get_task(task_id):
     task = [x for x in tasks if x['id'] == task_id]
     if len(task) == 0:
@@ -130,7 +135,7 @@ def get_task(task_id):
     return jsonify({'task': task})
 
 
-@app.route('/api/tasks', methods=['POST'])
+@ app.route('/api/tasks', methods=['POST'])
 def create_task():
 
     print(f"hello,{request.json}")
@@ -190,5 +195,5 @@ def method_name():
 if __name__ == '__main__':
     port = os.environ.get('FLASK_PORT') or 8080
     port = int(port)
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)
     # test for OC 2022
