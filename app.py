@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, abort, request
 import os
 import dediprog
+import hilo
 
 app = Flask(__name__)
 print(dir(app))
@@ -76,10 +77,17 @@ def article_list_page():
 
 
 @app.route('/dediprog', methods=['get'])
-def check_dediprog_status():
+def check_all_vendors_status():
     part_number = request.values.get('part_number')
-    find_part_list = dediprog.get_dediprog_html(part_number)
-    return render_template("dediprog.html", find_part_list=find_part_list, header_title="Dediprog result")
+    # check hilo
+    hilo_part_list = hilo.get_hilo_html(part_number)
+    # check Dediprog
+    dediprog_part_list = dediprog.get_dediprog_html(part_number)
+
+    search_result_dict = {'dediprog': dediprog_part_list,
+                          'hilo': hilo_part_list}
+
+    return render_template("dediprog.html", search_result_dict=search_result_dict, header_title="Dediprog result")
 
 # 動態路由
 

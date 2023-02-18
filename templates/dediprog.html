@@ -1,0 +1,19 @@
+<!-- 使用jinja語法 呼叫layout.html -->
+{% extends "layout.html" %}
+
+{% block body %}
+<link rel="stylesheet" href="/static/stylesheets/home.css">
+
+<h2>Dediprog</h2>
+{% for part in search_result_dict['dediprog'] %}
+{{ part}}
+<br>
+{%endfor%}
+
+<h2>Hilo</h2>
+{% for part in search_result_dict['hilo'] %}
+{{ part}}
+<br>
+{%endfor%}
+
+{% endblock %}
