@@ -78,8 +78,8 @@ def article_list_page():
 @app.route('/dediprog', methods=['get'])
 def check_dediprog_status():
     part_number = request.values.get('part_number')
-    html = dediprog.get_dediprog_html(part_number)
-    return render_template("layout.html", content=html)
+    find_part_list = dediprog.get_dediprog_html(part_number)
+    return render_template("dediprog.html", find_part_list=find_part_list, header_title="Dediprog result")
 
 # 動態路由
 
