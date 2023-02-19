@@ -4,16 +4,19 @@
 {% block body %}
 <link rel="stylesheet" href="/static/stylesheets/home.css">
 
-<h2>Dediprog</h2>
-{% for part in search_result_dict['dediprog'] %}
-{{ part}}
+{% for item in search_result_list %}
+<h1>{{ item['vendor_name'] }}</h1>
 <br>
+
+
+{% for part in item['part_list'] %}
+
+<h2>{{ part}}</h2>
 {%endfor%}
 
-<h2>Hilo</h2>
-{% for part in search_result_dict['hilo'] %}
-{{ part}}
-<br>
+
+
+
 {%endfor%}
 
 {% endblock %}

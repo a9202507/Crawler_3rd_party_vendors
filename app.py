@@ -76,18 +76,33 @@ def article_list_page():
                            )
 
 
-@app.route('/dediprog', methods=['get'])
+@app.route('/search_result', methods=['get'])
 def check_all_vendors_status():
     part_number = request.values.get('part_number')
     # check hilo
     hilo_part_list = hilo.get_hilo_html(part_number)
     # check Dediprog
     dediprog_part_list = dediprog.get_dediprog_html(part_number)
+    # check Acroview
+    acroview_part_list = hilo.get_acroview_result(part_number)
 
-    search_result_dict = {'dediprog': dediprog_part_list,
-                          'hilo': hilo_part_list}
+    hilo_info = {'vendor_name': 'HiLo-System',
+                 'part_list': hilo_part_list,
+                 }
 
-    return render_template("dediprog.html", search_result_dict=search_result_dict, header_title="Dediprog result")
+    dediprog_info = {'vendor_name': 'DediProg',
+                     'part_list': dediprog_part_list,
+                     }
+    acroview_info = {'vendor_name': 'Acroview',
+                     'part_list': acroview_part_list,
+                     }
+
+    search_result_list = list()
+    search_result_list.append(hilo_info)
+    search_result_list.append(dediprog_info)
+    search_result_list.append(acroview_info)
+
+    return render_template("search_result.html", search_result_list=search_result_list, header_title="search result")
 
 # 動態路由
 
