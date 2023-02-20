@@ -5,7 +5,7 @@ import json
 
 def get_hilo_html(part_number):
     url = 'https://www.hilosystems.com/search/ajaxLoadData'
-    data = parse.urlencode({"ic_name": part_number}).encode()
+    data = parse.urlencode({"ic_name": part_number,"table_name":3}).encode() # table_name=3 mean Hilo All-200
     request = req.Request(url,
                           data=data,
                           headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 Edg/108.0.1462.76"
@@ -50,4 +50,5 @@ def get_acroview_result(part_number):
 
 if __name__ == "__main__":
 
-    data = get_acroview_result('xdpe1')
+    data = get_hilo_html('xdpe152c4d')
+    print(data)
