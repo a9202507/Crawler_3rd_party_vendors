@@ -13,7 +13,7 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 @app.route('/')
 def hello():
     html = render_template("home.html",
-                           header_title="search part nubmer",
+                           header_title="Search part number",
                            )
     return html
 
