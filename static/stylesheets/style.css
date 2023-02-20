@@ -1,19 +1,19 @@
-body{
+body {
     /* 取消預設留白 */
     margin: 0;
 }
 
-header{
-    background:#ddd;
+header {
+    background: #ddd;
     /* 設計對內留白 */
-    padding:50px 20px;
+    padding: 50px 20px;
     /* 設計對外留白 */
     margin-bottom: 50px;
-    text-align:center;
+    text-align: center;
 }
 
 /* 設定放在header 內的h1標籤 */
-header .red-title{
+header .red-title {
     color: red;
 
 }
@@ -28,16 +28,16 @@ footer {
     text-align: center;
 }
 
-footer a{
+footer a {
     color: #888;
 }
 
-.article-list{
+.article-list {
     border: 1px solid #888;
     border-radius: 4px;
 }
 
-.article:nth-child(2n){
+.article:nth-child(2n) {
     /* 設定偶數行變色 */
     /* 奇數的話，用2n+1  */
     background: #eee;
@@ -47,6 +47,7 @@ footer a{
     /* 取消最後一欄位下方的重覆線段 */
     border-bottom: none;
 }
+
 .article {
     border-bottom: 1px solid #888;
     padding: 15px 15px;
@@ -58,8 +59,12 @@ footer a{
     margin-top: 0px;
 }
 
-.article h4{
-        /* 取消browser的文字標籤的預設留白 */
+.article h4 {
+    /* 取消browser的文字標籤的預設留白 */
 
     margin-bottom: 0px;
+}
+
+h2 {
+    padding: 0px 30px;
 }

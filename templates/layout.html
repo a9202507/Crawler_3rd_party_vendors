@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>{{ header_title or "我的網站"}}</title>
     <link rel="stylesheet" href="/static/stylesheets/style.css">
     {% block sytle_list%}
@@ -13,6 +14,10 @@
 
 <body>
     <header>
+        <a href="/">
+            <img src="https://www.infineon.com/frontend/release_2023-01/dist/resources/img/logo-desktop-en.png"
+                alt="Infineon logo">
+        </a>
         <h1 class="red-title">{{header_title or "default header title"}}</h1>
         <!-- <h1>header title2</h1> -->
 
@@ -27,8 +32,8 @@
         {% endblock %}
     </div>
     <footer>
-        <p>contact me: <a href="mailto:a9202507@gmail.com">email</a></p>
-        <p>&copy; 2021</p>
+        <p>contact me: <a href="mailto:eason.chen@infineon.com">email</a></p>
+        <p>&copy; 2023</p>
     </footer>
 </body>
 

@@ -6,17 +6,11 @@
 
 {% for item in search_result_list %}
 <h1>{{ item['vendor_name'] }}</h1>
-<br>
-
-
+<hr>
 {% for part in item['part_list'] %}
-
 <h2>{{ part}}</h2>
 {%endfor%}
-
-
-
-
 {%endfor%}
+<br>
 
 {% endblock %}
