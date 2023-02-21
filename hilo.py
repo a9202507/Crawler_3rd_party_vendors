@@ -5,7 +5,8 @@ import json
 
 def get_hilo_html(part_number):
     url = 'https://www.hilosystems.com/search/ajaxLoadData'
-    data = parse.urlencode({"ic_name": part_number,"table_name":3}).encode() # table_name=3 mean Hilo All-200
+    # table_name=3 mean Hilo All-200
+    data = parse.urlencode({"ic_name": part_number, "table_name": 3}).encode()
     request = req.Request(url,
                           data=data,
                           headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 Edg/108.0.1462.76"
@@ -18,8 +19,9 @@ def get_hilo_html(part_number):
 
     result_list = list()
 
-    for i in range(0, len(json_data['data']['data_array'])):
-        result_list.append(json_data['data']['data_array'][i]['I_IC'])
+    # for i in range(0, len(json_data['data']['data_array'])):
+    for index,data in enumerate(json_data['data']['data_array']):
+        result_list.append(json_data['data']['data_array'][index]['I_IC'])
 
     if len(result_list) == 0:
         result_list.append("No match")
@@ -40,8 +42,9 @@ def get_acroview_result(part_number):
     json_data = json.loads(data)
     result_list = list()
     try:
-        for i in range(0, len(json_data['data'])):
-            result_list.append(json_data['data'][i]['chip'])
+        #for index in range(0, len(json_data['data'])):
+        for index,data in enumerate(json_data['data']):
+            result_list.append(json_data['data'][index]['chip'])
     except:
         result_list.append("No match")
 
@@ -50,5 +53,5 @@ def get_acroview_result(part_number):
 
 if __name__ == "__main__":
 
-    data = get_hilo_html('xdpe152c4d')
+    data = get_acroview_result('xdpe152')
     print(data)
