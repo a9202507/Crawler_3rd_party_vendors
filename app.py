@@ -21,34 +21,38 @@ def hello():
 @app.route('/search_result', methods=['get'])
 def check_all_vendors_status():
     part_number = request.values.get('part_number')
-    # check hilo
-    hilo_part_list = hilo.get_hilo_html(part_number)
-    # check Dediprog
-    dediprog_part_list = dediprog.get_dediprog_html(part_number)
-    # check Acroview
-    acroview_part_list = hilo.get_acroview_result(part_number)
+    if len(part_number) <= 2:
+        return render_template("home.html", header_title="Need to enter 3 characters")
 
-    hilo_info = {'vendor_name': 'HiLo-System',
-                 'part_list': hilo_part_list,
-                 'part_number': part_number,
-                 }
+    else:
+        # check hilo
+        hilo_part_list = hilo.get_hilo_html(part_number)
+        # check Dediprog
+        dediprog_part_list = dediprog.get_dediprog_html(part_number)
+        # check Acroview
+        acroview_part_list = hilo.get_acroview_result(part_number)
 
-    dediprog_info = {'vendor_name': 'DediProg',
-                     'part_list': dediprog_part_list,
-                     'part_number': part_number,
-                     }
-    acroview_info = {'vendor_name': 'Acroview',
-                     'part_list': acroview_part_list,
+        hilo_info = {'vendor_name': 'HiLo-System',
+                     'part_list': hilo_part_list,
                      'part_number': part_number,
                      }
 
-    search_result_list = list()
+        dediprog_info = {'vendor_name': 'DediProg',
+                         'part_list': dediprog_part_list,
+                         'part_number': part_number,
+                         }
+        acroview_info = {'vendor_name': 'Acroview',
+                         'part_list': acroview_part_list,
+                         'part_number': part_number,
+                         }
 
-    search_result_list.append(dediprog_info)
-    search_result_list.append(hilo_info)
-    search_result_list.append(acroview_info)
+        search_result_list = list()
 
-    return render_template("search_result.html", search_result_list=search_result_list, header_title=f"Search keyword: '{part_number}' ")
+        search_result_list.append(dediprog_info)
+        search_result_list.append(hilo_info)
+        search_result_list.append(acroview_info)
+
+        return render_template("search_result.html", search_result_list=search_result_list, header_title=f"Search keyword: '{part_number}' ")
 
 
 if __name__ == '__main__':

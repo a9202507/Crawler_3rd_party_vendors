@@ -7,26 +7,22 @@
 
 {% block header %}
 
-<h3> Search part number through 3rd party websites</h3>
 
 
-<form method='get' action="/search_result">
-    <input type='text' name='part_number'>
-    <button id='load' type='submit'>Submit</button>
-    <br>
 
-    {% endblock %}
 
-    {% block content %}
+{% endblock %}
 
-    <h1>{{web_info.title}}</h1>
-    <h2>{{web_info.subtitle}}</h2>
-    <h2>作者:{{author_name}}</h2>
-    {% if show_link %}
-    <a href="about">about the website</a>
-    {% else %}
-    <p>你看不到按鈕</p>
-    {% endif %}
+{% block content %}
 
-    <!-- 使用jinja 語法 呼叫layout.html的結尾 -->
-    {% endblock content %}
+<h1>{{web_info.title}}</h1>
+<h2>{{web_info.subtitle}}</h2>
+<h2>作者:{{author_name}}</h2>
+{% if show_link %}
+<a href="about">about the website</a>
+{% else %}
+<p>你看不到按鈕</p>
+{% endif %}
+
+<!-- 使用jinja 語法 呼叫layout.html的結尾 -->
+{% endblock content %}
