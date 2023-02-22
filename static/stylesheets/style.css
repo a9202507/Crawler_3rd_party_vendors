@@ -68,3 +68,12 @@ footer a {
 h2 {
     padding: 0px 30px;
 }
+
+
+/* 水平排列*/
+.frame {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}

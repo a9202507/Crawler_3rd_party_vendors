@@ -14,11 +14,13 @@
 
 <body>
     <header>
-        <a href="/">
-            <img src="https://www.infineon.com/frontend/release_2023-01/dist/resources/img/logo-desktop-en.png"
-                alt="Infineon logo">
-        </a>
-        <h1 class="red-title">{{header_title or "default header title"}}</h1>
+        <div class="frame">
+            <a href="/">
+                <img src="https://www.infineon.com/frontend/release_2023-01/dist/resources/img/logo-desktop-en.png"
+                    alt="Infineon logo" style='padding:0px 10px'>
+            </a>
+            <h1 class="red-title">{{header_title or "default header title"}}</h1>
+        </div>
         <!-- <h1>header title2</h1> -->
 
         {% block header %}
