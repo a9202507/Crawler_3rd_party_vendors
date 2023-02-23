@@ -1,7 +1,6 @@
 from flask import Flask, render_template, jsonify, abort, request
 import os
-import dediprog
-import hilo
+import my_request_funciton
 
 app = Flask(__name__)
 print(dir(app))
@@ -26,13 +25,15 @@ def check_all_vendors_status():
 
     else:
         # check hilo
-        hilo_part_list = hilo.get_hilo_html(part_number)
+        hilo_part_list = my_request_funciton.search_with_hilo(part_number)
         # check Dediprog
-        dediprog_part_list = dediprog.get_dediprog_html(part_number)
+        dediprog_part_list, dediprog_search_url = my_request_funciton.search_with_dediprog(
+            part_number)
         # check Acroview
-        acroview_part_list = hilo.get_acroview_result(part_number)
+        acroview_part_list = my_request_funciton.search_with_acroview(
+            part_number)
         # check Elnec
-        elnec_part_list = hilo.get_elnec_result(part_number)
+        elnec_part_list = my_request_funciton.search_with_elnec(part_number)
 
         hilo_info = {'vendor_name': 'HiLo-System',
                      'website': 'https://www.hilosystems.com/en-gb/search',
@@ -41,7 +42,7 @@ def check_all_vendors_status():
                      }
 
         dediprog_info = {'vendor_name': 'DediProg',
-                         'website': 'https://www.dediprog.com/search/socket?keyword=',
+                         'website': dediprog_search_url,
                          'part_list': dediprog_part_list,
                          'part_number': part_number,
                          }
@@ -63,7 +64,9 @@ def check_all_vendors_status():
         search_result_list.append(acroview_info)
         search_result_list.append(elnec_info)
 
-        return render_template("search_result.html", search_result_list=search_result_list, header_title=f"Search keyword: '{part_number}' ")
+        #print(f"dediprog url: {dediprog_search_url}")
+
+        return render_template("search_result.html", search_result_list=search_result_list, header_title=f"Search P/N: '{part_number}' ")
 
 
 if __name__ == '__main__':
