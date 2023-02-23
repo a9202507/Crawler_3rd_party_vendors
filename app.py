@@ -31,26 +31,37 @@ def check_all_vendors_status():
         dediprog_part_list = dediprog.get_dediprog_html(part_number)
         # check Acroview
         acroview_part_list = hilo.get_acroview_result(part_number)
+        # check Elnec
+        elnec_part_list = hilo.get_elnec_result(part_number)
 
         hilo_info = {'vendor_name': 'HiLo-System',
+                     'website': 'https://www.hilosystems.com/en-gb/search',
                      'part_list': hilo_part_list,
                      'part_number': part_number,
                      }
 
         dediprog_info = {'vendor_name': 'DediProg',
+                         'website': 'https://www.dediprog.com/search/socket?keyword=',
                          'part_list': dediprog_part_list,
                          'part_number': part_number,
                          }
         acroview_info = {'vendor_name': 'Acroview',
+                         'website': 'https://www.acroview.cc/en-Chip-support-query/',
                          'part_list': acroview_part_list,
                          'part_number': part_number,
                          }
+        elnec_info = {'vendor_name': 'Elnec',
+                      'website': 'https://www.elnec.com/en/search/',
+                      'part_list': elnec_part_list,
+                      'part_number': part_number,
+                      }
 
         search_result_list = list()
 
         search_result_list.append(dediprog_info)
         search_result_list.append(hilo_info)
         search_result_list.append(acroview_info)
+        search_result_list.append(elnec_info)
 
         return render_template("search_result.html", search_result_list=search_result_list, header_title=f"Search keyword: '{part_number}' ")
 
