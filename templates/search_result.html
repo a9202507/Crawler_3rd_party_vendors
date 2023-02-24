@@ -3,7 +3,7 @@
 
 {% block body %}
 <link rel="stylesheet" href="/static/stylesheets/home.css">
-
+<h4 style="padding: 0px 30px;">{{now_str}}</h4>
 {% for item in search_result_list %}
 <h1> <A href="{{item['website']}}">{{ item['vendor_name'] }} </A></h1>
 <hr>

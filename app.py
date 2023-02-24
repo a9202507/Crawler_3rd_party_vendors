@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, abort, request
 import os
 import my_request_funciton
+import datetime
 
 app = Flask(__name__)
 print(dir(app))
@@ -20,6 +21,7 @@ def hello():
 @app.route('/search_result', methods=['get'])
 def check_all_vendors_status():
     part_number = request.values.get('part_number')
+    now_str = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
     if len(part_number) <= 2:
         return render_template("home.html", header_title="Need to enter 3 characters")
 
@@ -66,7 +68,7 @@ def check_all_vendors_status():
 
         #print(f"dediprog url: {dediprog_search_url}")
 
-        return render_template("search_result.html", search_result_list=search_result_list, header_title=f"Search P/N: '{part_number}' ")
+        return render_template("search_result.html", search_result_list=search_result_list, header_title=f"Search P/N: '{part_number}'", now_str=now_str)
 
 
 if __name__ == '__main__':

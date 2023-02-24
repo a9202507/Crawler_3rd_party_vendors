@@ -66,9 +66,12 @@ footer a {
 }
 
 h2 {
-    padding: 0px 30px;
+    padding: 0px 80px;
 }
 
+h1 {
+    padding: 0px 40px;
+}
 
 /* 水平排列*/
 .frame {
