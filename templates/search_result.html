@@ -3,14 +3,28 @@
 
 {% block body %}
 <link rel="stylesheet" href="/static/stylesheets/home.css">
-<h4 style="padding: 0px 30px;">{{now_str}}</h4>
-{% for item in search_result_list %}
-<h1> <A href="{{item['website']}}">{{ item['vendor_name'] }} </A></h1>
-<hr>
-{% for part in item['part_list'] %}
-<h2>{{ part}}</h2>
-{%endfor%}
-{%endfor%}
-<br>
+
+<div style="padding: 0px 30px;">
+    <h4>{{now_str}}</h4>
+
+    <div class="row">
+        {% for item in search_result_list %}
+        <div class="col-md-3">
+            <div class="card mb-3">
+                <!--<img class="card-img-top" src=" {{ item['logo'] }} " alt="logo.jpg">-->
+                <div class="card-body">
+                    <h3 class="card-title"><a href="{{item['website']}}">{{item['vendor_name']}}</a></h3>
+
+                    {% for part in item['part_list'] %}
+                    <p class="card-text">{{ part}}</p>
+                    {%endfor%}
+                </div>
+            </div>
+        </div>
+
+
+        {%endfor%}
+    </div>
+</div>
 
 {% endblock %}

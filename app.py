@@ -41,22 +41,26 @@ def check_all_vendors_status():
                      'website': 'https://www.hilosystems.com/en-gb/search',
                      'part_list': hilo_part_list,
                      'part_number': part_number,
+                     'logo': 'https://www.hilosystems.com/image/cache/catalog/%E9%A6%96%E9%A0%81/logo%20(1)-270x30.png',
                      }
 
         dediprog_info = {'vendor_name': 'DediProg',
                          'website': dediprog_search_url,
                          'part_list': dediprog_part_list,
                          'part_number': part_number,
+                         'logo': 'https://www.dediprog.com/dist/layout/img/logo_no-text.svg',
                          }
         acroview_info = {'vendor_name': 'Acroview',
                          'website': 'https://www.acroview.cc/en-Chip-support-query/',
                          'part_list': acroview_part_list,
                          'part_number': part_number,
+                         'logo': 'https://www.acroview.com/static/upload/image/20201117/1605598293706953.jpg',
                          }
         elnec_info = {'vendor_name': 'Elnec',
                       'website': 'https://www.elnec.com/en/search/',
                       'part_list': elnec_part_list,
                       'part_number': part_number,
+                      'logo': '/static/logo/elnec.jfif',
                       }
 
         search_result_list = list()

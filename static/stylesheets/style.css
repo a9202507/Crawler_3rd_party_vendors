@@ -76,7 +76,7 @@ h1 {
 /* 水平排列*/
 .frame {
     display: flex;
-    justify-content: left;
+    justify-content: center;
     align-items: center;
 
 }
